@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+        <div class="search-page-div">
+            <h1 id="search-page-head">PinStyle</h1>
+        </div>
+    
+    <div class="row"></div>
+      <div class="search-desc-div">
+        <p><h3 id="search-page-desc">Find inspiration for your favorite styles and looks by using pins!</h3></p>
+    </div>
+
+
+<div class="split-left">
+  <div class="search-form-container container-fluid">
+     <form action="/search" method="POST" id="image_form">
+        <div class="search-url-div">
+          <p><h3 id="search-url-title">Search by Image URL</h3></p>
+        </div>
+    <div class="form-group">
+      <label>Image URL:
+          <input type="url" name="image_URL" class="form-control image_URL" id="image_URL">
+      </label>
+      <div id="default_shape">
+          <img src="/static/photo-camera.png" class="camera-icon">
+      </div>
+      <img id="image_preview" src="" />
+      <input type="hidden" name="image_desc" id="image_desc"></input>
+    </div>
+
+    <div>
+        <label>
+          <div>Top Size</div>
+          {% if session.get("user_id") %}
+            <select name="size" class="size-selector">
+              <option value="X-Small" {% if user.size == "X-Small" %} selected="selected" {% endif %}>X-Small</option>
+              <option value="Small" {% if user.size == "Small" %} selected="selected" {% endif %}>Small</option>
+              <option value="Medium" {% if user.size == "Medium" %} selected="selected" {% endif %}>Medium</option>
+              <option value="Large" {% if user.size == "Large" %} selected="selected" {% endif %}>Large</option>
+              <option value="X-Large" {% if user.size == "X-Large" %} selected="selected" {% endif %}>X-Large</option>
+          </select>
+          {% else %}
+          <select name="size">
+              <option value="X-Small">X-Small</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+              <option value="X-Large">X-Large</option>
+          {% endif %}
+        </label>
+      </div>
+
+      <div>
+        <label>
+          <div>Pant Size (RU)</div>
+{#          {% if "user_id" in session %}#}
+{#            <input type="number" name="pant_size" min="23" max="40" value="{{ user.pant_size }}" class="form-control">#}
+{#          {% else %}#}
+{#            <input type="number" name="pant_size" min="23" max="40" class="form-control">#}
+{#          {% endif %}#}
+            {% if session["user_id"] %}
+                <input type="number" name="pant_size" min="33" max="55" value="{{ user.pant_size +10}}" class="form-control">
+            {% else %}
+                <input type="number" name="pant_size" min="33" max="55" class="form-control">
+            {% endif %}
+        </label>
+      </div>
+
+      <div>
+        <label>
+          Shoe Size (RU)
+            {% if session["user_id"] %}
+                <input type="number" name="shoe_size" min="36" max="45" step=".5" value="{{ user.shoe_size +32  }}" class="form-control">
+            {% else %}
+                <input type="number" name="shoe_size" min="36" max="45" step=".5" class="form-control">
+            {% endif %}
+        </label>
+      </div>
+
+     <div>
+         <label>
+             Gender
+             <div>
+                 <select name="gender_choice" class="size-selector">
+                     {% if session["gender"]== "Male" %}
+                         <option value="Male" selected="{{ selected }} ">Male</option>
+                     {% else  %}
+                         <option value="Male" >Male</option>
+                     {% endif %}
+                     {% if session["gender"]== "Female" %}
+                         <option value="Female" selected="{{ selected }} ">Female</option>
+                     {% else %}
+                         <option value="Female">Female</option>
+                     {% endif %}
+                 </select>
+         </label>
+     </div>
+    <div class="form-group">
+      <p><input type="submit" value="Search" id="Shop-search" class="btn"></p>
+    </div>
+
+  </form>
+  </div>
+  </div>
+</div>
+
+
+<div class="split-right">
+
+  {# SEARCH FOR BOARD PORTION IF USER PROVIDES PINTEREST NAME #}
+  <form action="/search" method="GET">
+  {% if session.get("pin_username") %} {# if "pin_username" in session #}
+
+    <!-- <p><h4>Filter by specific board</h4></p> Allow user to input specific board name -->
+    <div class="form-group board-selector">
+      <span>Enter your board name:
+      </span>
+      <input type="text" name="board-name" class="form-control board-name" id="board-input">
+      <input type="submit" value="Load Board" class="btn">
+    </div>
+
+    <span class="form-group">
+     <!--  <p><input type="submit" value="Load Board" class="btn"></p> -->
+    </span>
+  </form>
+
+  {% else %}
+    <p><h3 class="pin-search-title">Search sample pins</h3></p>
+  {% endif %}
+
+  {# SEARCH FOR SPECIFIC PIN AND SUBMIT #}
+
+<div class="grid" id="pin-list">
+  {% for pin in melody_pins %}
+    <div class="grid-item">
+      {# <a href="{{ pin['link'] }}" ></a> #}
+      <img src="{{ pin['image'] }}" class="pin_image" name="pin-select" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}"> {# {{ pin['description'] }} #}
+      {# <input type="radio" name="pin-select" class="radiobutton" data-pinimage="{{ pin['image'] }}" data-pindesc="{{ pin['description'] }}"> #}
+    </div>
+  {% endfor %}
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+$(window).on("load", function() {
+  console.log("about to do masonry");
+
+
+$('.grid').masonry({
+  itemSelector: '.grid-item',
+  columnWidth: 80,
+  horizontalOrder: true,
+  gutter: 10
+});
+
+console.log("done to do masonry");
+
+$('.pin_image').click(
+  function (evt) {
+   
+    let button_data = $(this).data("pinimage");
+    let description = $(this).data("pindesc");
+    console.log(button_data);
+    console.log(description);
+    $("#image_URL")[0].value = button_data;
+    $('#image_desc')[0].value = description;
+    $('#image_preview').attr("src", button_data);
+    $('#default_shape').hide()
+  }
+  )
+
+$('#image_URL').on('change', function() {
+
+  $('#image_preview').prop('src', this.value);
+  $('#default_shape').hide();
+}
+
+  );
+
+});
+</script>
+{% endblock %}

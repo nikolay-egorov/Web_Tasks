@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+  <br><br>
+  <div class="row"></div>
+    <div class="col-xs-offset-5 col-xs-7">
+        <h1>Bookmarks</h1>
+    </div>
+
+    <div class="container">
+    {% for bookmark in listing_list %}
+    <div class="product-list">
+      <div class="list-item">
+        <a href="{{ bookmark.listing_url }}">
+        <div class="result_image">
+          <img src="{{ bookmark.listing_image }}" class="bookmark_image">
+        </div>
+      <div class="product-info">
+        <div class="product-text">
+          <h5>{{ bookmark.listing_title }}</h5></a>
+          <p>{{ "${:,.0f}".format(bookmark.listing_price) }}</p>
+          <div class="save-button-div">
+              <button type="button" class="btn btn-outline-primary" id="remove-button-click" data-listingdata="{{ bookmark.item_listing_id }}">
+                  Remove
+              </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+    (function () {
+        $('.btn-outline-primary').click(function (evt) {
+            let listingdata = $(this).data("listingdata"); // may need JSON dumps here
+
+            // Given an id on a save-button
+
+
+            let payload = {"listing_data": listingdata}
+            // console.log(payload);
+            console.log(listingdata);
+            console.log(typeof (listingdata));
+            $.get('/get-item-info', payload, get_item_info);
+
+            function get_item_info(response) {
+                console.log(response);
+
+                $.ajax({
+                    url: "/delete-bookmark.json",
+                    dataType: 'json',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(response),
+                    processData: false,
+                    success: function display_saved(results) {
+                        // $(this).html("Saved"); // need to debug; not working
+                        //console.log(results);
+                        console.log("Finished removing ShopStyle API result!");
+
+                    }
+                });
+                // $('.save-button').html("saved");
+                // $(this).html("saved");
+            };
+            $(this).html("Removed");
+        })
+
+    })
+    ();
+</script>
+
+{% endblock %}
+
+

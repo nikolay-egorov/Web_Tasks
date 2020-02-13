@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block content %}
+    <br><br>
+  <div class="results-title-div">
+    <h1>PinStyle Findings</h1>
+  </div>
+
+  <div class="sort-by-div">
+     <h3 class="sort-by-text">Sort by:</h3>
+   </div>
+
+    <div class="filter-radios">
+    <span class="radiobutton">
+  <input type="radio" name="result-sort" class="sortradiobutton" id="popularity" value="popularity" checked>
+  <label for="popularity">Popularity
+  </span>
+
+  <span class="radiobutton">
+  <input type="radio" name="result-sort" class="sortradiobutton" id="lowtohigh" value="lowtohigh">
+  <label for="lowtohigh">Price: Low to High
+  </span>
+
+  <span class="radiobutton">
+  <input type="radio" name="result-sort" class="sortradiobutton" id="hightolow" value="hightolow">
+  <label for="hightolow">Price: High to Low
+  </span>
+  
+  <span class="radiobutton">
+  <input type="radio" name="result-sort" class="sortradiobutton" id="sortbrand" value="sortbrand">
+  <label for="sortbrand">Brand
+   <select name="brand-dropdown" id="brand-dropdown">
+    {% for brand in brand_set %}
+      <option class="brand-select" value="{{ brand }}">{{ brand }}</option>
+    {% endfor %}
+  </select>
+</span>
+  </div>
+</div>
+
+
+     <!-- same as wrapper -->
+  <div class="container">
+    {% for i, result in enumerate(results) %} <!-- list_item is card -->
+      <div class="product-list" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}">
+        <div class="list-item" id="{{ result['id'] }}" data-price="{{ result['price'] }}" data-popularity="{{ i }}" data-brand="{{ result['brand'] }}">
+          <div class="result_image">
+            <img src="{{ result['image_url'] }}">
+          </div>
+          <div class="product-info"> <!-- same as card content -->
+            <div class="product-text"> <!-- same as card__title -->
+              <h5><a href="{{ result['url'] }}">{{ result['name'] }}</a></h5>
+              <p>{{ result['priceLabel'] }}</p>
+            </a>
+            {% if session.get("user_id") %}
+              <!-- <div data-listingdata="{{ result['id'] }}"> -->
+              <div class="save-button-div">
+                <button type="button" class="save-button" id="save-button-click" data-listingdata="{{ result['id'] }}">Save</button>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+
+
+
+ 
+    <script> // try document ready & load the jquery tag in the head
+    ( function () {
+
+    $('.sortradiobutton').click(function (evt) {
+        let sortingMethod = $(this).val(); // check which value of sorting method is selected
+        console.log(sortingMethod);
+
+        if (sortingMethod == "lowtohigh")
+        {
+          sortAscending("price");
+        }
+        else if (sortingMethod == "hightolow")
+        {
+          sortDescending("price");
+        }
+        else if (sortingMethod == "popularity") 
+        {
+          sortAscending("popularity");
+        }
+        else if (sortingMethod == "sortbrand")
+        {
+          sortbyBrand("brand")
+        }
+
+    });
+
+    function sortAscending(sortparam)
+    {
+      let products = $('.product-list');
+      products.show();
+      products.sort(function(a, b) {
+        return $(a).data(sortparam)-$(b).data(sortparam)});
+        $(".container").html(products);
+        console.log("used sortProductsPriceAscending");
+
+      }
+
+    function sortDescending(sortparam)
+    {
+      let products = $('.product-list');
+      products.show();
+      products.sort(function(a, b) {
+        return $(b).data(sortparam)-$(a).data(sortparam)});
+        $(".container").html(products);
+        console.log("used sortProductsPriceDescending");
+
+      }
+
+    function sortbyBrand(sortparam)
+    {
+      let products = $('.product-list');
+      let selectedBrand = $('#brand-dropdown').find(":selected").text();
+      
+      let filtered = products.filter(function(idx, element) {
+        console.log($(element).data(sortparam) != selectedBrand)
+        return ($(element).data(sortparam) != selectedBrand)
+      }).hide();
+
+      console.log(filtered)
+
+    }
+
+    
+    $('.save-button').click(function (evt) {
+        let listingdata = $(this).data("listingdata"); // may need JSON dumps here
+        // $(this).html("saved");
+        // Given an id on a save-button
+        
+
+        let payload = {"listing_data": listingdata}
+        // console.log(payload);
+        console.log(listingdata); 
+        console.log(typeof(listingdata));
+        $.get('/get-item-info', payload, get_item_info);
+
+        function get_item_info (response) {
+          console.log(response);
+
+          $.ajax({
+            url: "/add-bookmark.json", 
+            dataType: 'json',
+            type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify(response),
+            processData: false,
+            success: function display_saved(results) {
+            // $(this).html("Saved"); // need to debug; not working
+            //console.log(results);
+            console.log("Finished saving ShopStyle API result!");
+
+            }
+          });
+          // $('.save-button').html("saved");
+          // $(this).html("saved");
+        };
+        $(this).html("Saved");
+})
+
+})
+();
+
+</script>
+
+{% endblock %}
