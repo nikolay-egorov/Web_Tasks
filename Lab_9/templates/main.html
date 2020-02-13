@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block body %}
+<div class=container>
+    <h1> Таблица Результатов ACM ICPC </h1>
+
+    <table class="u-full-width">
+        <thead>
+        <tr>
+            {% for head_item in header_row %}
+                <th>
+                    {{ head_item }}
+                </th>
+            {% endfor %}
+        </tr>
+{#        {% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}#}
+        {% for row in data_db %}
+            <tr class="shade_{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
+                {% for col in row %}
+                    <td>
+                        {{ col }}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </thead>
+    </table>
+    <br>
+    <a href="{% url 'add' %}">Добавить новый результат</a>
+</div>
+{% endblock %}

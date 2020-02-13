@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block body %}
+
+<div class=container>
+    <h1> Добавление нового результата </h1>
+    <form action="" method="post"  >
+        {% csrf_token %}
+        <p>
+            {{ form.year.label }}<br>
+            {{ form.year }}
+        </p>
+        <p>
+            {{ form.location.label }}<br>
+            {{ form.location  }}
+        </p>
+        <p>
+            {{ form.place.label }}<br>
+            {{ form.place  }}
+        </p>
+        <p>
+            {{ form.squad.label }}<br>
+            {{ form.squad  }}
+        </p>
+        <p>
+            {{ form.coach.label }}<br>
+            {{ form.coach }}
+        </p>
+        <p><input type="submit" value="Сохранить результат"></p>
+    </form>
+</div>
+{% endblock %}

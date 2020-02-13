@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block body %}
+<div class=container>
+    <h1> Таблица Результатов ACM ICPC </h1>
+
+    <table class="u-full-width">
+        <thead>
+        <tr>
+            {% for head_item in header_row %}
+                <th>
+                    {{ head_item }}
+                </th>
+            {% endfor %}
+        </tr>
+        {% set row_class = cycler('odd', 'even') %}
+        {% for row in data_db %}
+            <tr class="shade_{{ row_class.next() }}">
+                {% for col in row %}
+                    <td>
+                        {{ col }}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </thead>
+    </table>
+    <br>
+    <a href="/add">Добавить новый результат</a>
+</div>
+{% endblock %}
